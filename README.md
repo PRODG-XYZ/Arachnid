@@ -161,12 +161,37 @@ cogni
 
 ### Content Extraction (pdf-bandit)
 ```bash
-pdf-bandit
-# Follow the interactive prompts to:
-# 1. Select input dataset
-# 2. Choose extraction options
-# 3. Begin content processing
+# Process a single dataset file
+pdf-bandit -f dataset.txt
+
+# Process multiple datasets from a list file
+pdf-bandit -l datasets_list.txt
+
+# Process multiple datasets concurrently
+pdf-bandit -l datasets_list.txt -c
 ```
+
+PDF Bandit supports the following flags:
+| Flag | Description |
+|------|-------------|
+| `-f` | Process a single dataset file |
+| `-l` | Path to a text file containing a list of dataset files |
+| `-c` | Enable concurrent processing (up to 3 datasets simultaneously) |
+
+The tool organizes output in the following structure:
+```
+output/
+└── dataset_name/
+    ├── pdf_links.txt     # List of extracted PDF URLs
+    └── *.pdf            # Downloaded PDF files
+```
+
+Features:
+- Concurrent PDF downloads (up to 5 simultaneous downloads)
+- Automatic directory organization
+- Progress tracking and error reporting
+- URL extraction and validation
+- Batch processing capabilities
 
 ## Output Structure
 
