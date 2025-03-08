@@ -1,6 +1,160 @@
-# Arachnid
+package main
 
-```
+import (
+	"bufio"
+	"flag"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
+	"sync"
+)
+
+// Function to extract PDF links from a .txt file
+func extractPDFLinks(txtFile string) ([]string, error) {
+	var pdfLinks []string
+
+	// Open the file
+	file, err := os.Open(txtFile)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	// Define regex to match URLs ending with .pdf
+	pdfRegex := regexp.MustCompile(`https?://[^\s]+\.pdf`)
+
+	// Read through the file line by line
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// Find all pdf links in the line
+		matches := pdfRegex.FindAllString(line, -1)
+		if matches != nil {
+			pdfLinks = append(pdfLinks, matches...)
+		}
+	}
+
+	// Check for any errors during file reading
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return pdfLinks, nil
+}
+
+// Function to download a PDF from a given URL and save it to the specified folder
+func downloadPDF(url, downloadFolder string) error {
+	// Get the file name from the URL
+	fileName := filepath.Base(url)
+	filePath := filepath.Join(downloadFolder, fileName)
+
+	// Make the HTTP request
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Check if the response status is OK
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download %s: status code %d", url, resp.StatusCode)
+	}
+
+	// Create the file on disk
+	outFile, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer outFile.Close()
+
+	// Write the response body to the file
+	_, err = io.Copy(outFile, resp.Body)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Downloaded: %s\n", fileName)
+	return nil
+}
+
+// Function to download PDFs from a list of URLs
+func downloadPDFs(links []string, downloadFolder string) error {
+	// Create the download folder if it doesn't exist
+	if _, err := os.Stat(downloadFolder); os.IsNotExist(err) {
+		err := os.MkdirAll(downloadFolder, 0755)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Create a wait group to manage concurrent downloads
+	var wg sync.WaitGroup
+	semaphore := make(chan struct{}, 5) // Limit concurrent downloads to 5
+
+	// Download each PDF
+	for _, link := range links {
+		wg.Add(1)
+		go func(url string) {
+			defer wg.Done()
+			semaphore <- struct{}{}        // Acquire semaphore
+			defer func() { <-semaphore }() // Release semaphore
+
+			err := downloadPDF(url, downloadFolder)
+			if err != nil {
+				fmt.Printf("Failed to download %s: %v\n", url, err)
+			}
+		}(link)
+	}
+
+	wg.Wait()
+	return nil
+}
+
+// Function to process a single dataset
+func processDataset(datasetFile string) error {
+	// Extract PDF links from the dataset file
+	pdfLinks, err := extractPDFLinks(datasetFile)
+	if err != nil {
+		return fmt.Errorf("failed to extract PDF links from %s: %v", datasetFile, err)
+	}
+
+	if len(pdfLinks) == 0 {
+		fmt.Printf("No PDF links found in %s\n", datasetFile)
+		return nil
+	}
+
+	// Create output directory based on dataset name
+	baseName := strings.TrimSuffix(filepath.Base(datasetFile), filepath.Ext(datasetFile))
+	outputDir := filepath.Join("output", baseName)
+
+	// Save the extracted PDF links to a list file
+	linksFile := filepath.Join(outputDir, "pdf_links.txt")
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		return fmt.Errorf("failed to create output directory: %v", err)
+	}
+
+	// Save links to file
+	if err := savePDFLinks(pdfLinks, linksFile); err != nil {
+		return fmt.Errorf("failed to save PDF links: %v", err)
+	}
+
+	// Download the PDFs
+	if err := downloadPDFs(pdfLinks, outputDir); err != nil {
+		return fmt.Errorf("failed to download PDFs: %v", err)
+	}
+
+	fmt.Printf("Successfully processed dataset: %s\n", datasetFile)
+	return nil
+}
+
+func printASCIIArt() {
+	asciiArt := `
                                                                                                        .,::,.                 ,:,..
                                                                                                 .,:;;i111;,                    .;i11i;;:,.
                                                                                               ,;111111i:.                         :i111111;,
@@ -46,185 +200,100 @@
                                                                                                       ,;  :1,                ,,;  ;,
                                                                                                           ,1:                :1,
                                                                                                            ,,                ,,
-```
+`
+	fmt.Println(asciiArt)
+}
 
-```
-                              _           _     _ 
-     /\                      | |         (_)   | |
-    /  \   _ __ __ _   ___  | |__  _ __  _  __| |
-   / /\ \ | '__/ _` | / __| | '_ \| '_ \| |/ _` |
-  / ____ \| | | (_| || (__  | | | | | | | | (_| |
- /_/    \_\_|  \__,_| \___| |_| |_|_| |_|_|\__,_|
-                                                  
-        Web Reconnaissance Suite v1.1.6
-```
+// Function to save extracted PDF links to a file
+func savePDFLinks(links []string, outputFile string) error {
+	file, err := os.Create(outputFile)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
 
-<p align="center">
-  <h3 align="center">Arachnid</h3>
-  <p align="center">A powerful and modular web reconnaissance suite written in Go</p>
-</p>
+	for _, link := range links {
+		_, err := file.WriteString(link + "\n")
+		if err != nil {
+			return err
+		}
+	}
 
-## Overview
+	fmt.Printf("PDF links saved to %s\n", outputFile)
+	return nil
+}
 
-Arachnid is a comprehensive web reconnaissance suite that combines three powerful tools:
-- **Web Crawler**: Advanced web crawling with intelligent content discovery
-- **PDF Discovery**: Specialized module for finding and analyzing PDF documents
-- **Content Extraction**: Smart content processing and data organization
+func main() {
+	printASCIIArt()
 
-This fork is designed for proDG Organisation to serve as a solid foundation for further enhancements and integration with our security suite. It delivers fast, concurrent crawling and robust data extraction features for streamlined vulnerability research and recon workflows.
+	// Define command line flags
+	listFile := flag.String("l", "", "Path to a text file containing a list of dataset files")
+	datasetFile := flag.String("f", "", "Single dataset file to process")
+	concurrent := flag.Bool("c", false, "Process datasets concurrently")
+	flag.Parse()
 
-## Features
+	if *listFile == "" && *datasetFile == "" {
+		fmt.Println("Please provide either a list file (-l) or a single dataset file (-f)")
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
 
-### Core Features
-* Fast and concurrent web crawling
-* Intelligent content discovery and organization
-* Automatic file categorization
-* Domain-based output structuring
-* PDF document discovery and analysis
-* AWS S3 bucket detection
-* Subdomain enumeration
-* JavaScript analysis and URL extraction
-* Historical data collection (Archive.org, CommonCrawl, VirusTotal)
-* Proxy support with TOR integration
-* Custom header and cookie management
+	// Process a single dataset file
+	if *datasetFile != "" {
+		if err := processDataset(*datasetFile); err != nil {
+			log.Fatalf("Error processing dataset: %v", err)
+		}
+		return
+	}
 
-### Advanced Capabilities
-* Sitemap and robots.txt parsing
-* Form detection and analysis
-* File upload endpoint discovery
-* Customizable crawl depth and scope
-* Rate limiting and delay controls
-* Flexible output formats (plain text, JSON)
-* Domain-specific filtering
-* Length-based response filtering
+	// Process multiple datasets from a list file
+	file, err := os.Open(*listFile)
+	if err != nil {
+		log.Fatalf("Failed to open list file: %v", err)
+	}
+	defer file.Close()
 
-## Installation
+	var datasets []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		datasets = append(datasets, strings.TrimSpace(scanner.Text()))
+	}
 
-### Prerequisites
-- Go 1.16 or higher
-- Git
+	if err := scanner.Err(); err != nil {
+		log.Fatalf("Error reading list file: %v", err)
+	}
 
-### From Source
-```bash
-# Clone the repository
-git clone https://github.com/PRODG-XYZ/Arachnid.git
-cd Arachnid
+	if len(datasets) == 0 {
+		log.Fatal("No datasets found in the list file")
+	}
 
-# Build all tools
-./build.sh
+	// Process datasets either concurrently or sequentially
+	if *concurrent {
+		var wg sync.WaitGroup
+		semaphore := make(chan struct{}, 3) // Limit concurrent processing to 3 datasets
 
-# Optional: Move binaries to PATH
-sudo mv bin/* /usr/local/bin/
-```
+		for _, dataset := range datasets {
+			wg.Add(1)
+			go func(ds string) {
+				defer wg.Done()
+				semaphore <- struct{}{}        // Acquire semaphore
+				defer func() { <-semaphore }() // Release semaphore
 
-### Using Go Install
-```bash
-GO111MODULE=on go install github.com/PRODG-XYZ/Arachnid/cmd/arachnid@latest
-GO111MODULE=on go install github.com/PRODG-XYZ/Arachnid/cmd/cogni@latest
-GO111MODULE=on go install github.com/PRODG-XYZ/Arachnid/cmd/pdf-bandit@latest
-```
+				if err := processDataset(ds); err != nil {
+					fmt.Printf("Error processing dataset %s: %v\n", ds, err)
+				}
+			}(dataset)
+		}
 
-### Docker
-```bash
-# Build the container
-docker build -t arachnid:latest .
+		wg.Wait()
+	} else {
+		for _, dataset := range datasets {
+			if err := processDataset(dataset); err != nil {
+				fmt.Printf("Error processing dataset %s: %v\n", dataset, err)
+				continue
+			}
+		}
+	}
 
-# Run the container
-docker run -t arachnid -h
-```
-
-## Usage
-
-### Web Crawler (arachnid)
-```bash
-# Basic crawl
-arachnid -s "https://example.com" -o output -c 10 -d 1
-
-# Crawl with all features enabled
-arachnid -s "https://example.com" -o output -c 10 -d 1 --js --sitemap --robots -a
-
-# Crawl multiple sites
-arachnid -S sites.txt -o output -c 10 -d 1 -t 20
-
-# Use with TOR proxy
-arachnid -s "https://example.com" -p "socks5://127.0.0.1:9050" -o output
-```
-
-### PDF Discovery (cogni)
-```bash
-cogni
-# Follow the interactive prompts to:
-# 1. Enter target URL
-# 2. Configure crawling options
-# 3. Start PDF discovery
-```
-
-### Content Extraction (pdf-bandit)
-```bash
-pdf-bandit
-# Follow the interactive prompts to:
-# 1. Select input dataset
-# 2. Choose extraction options
-# 3. Begin content processing
-```
-
-## Output Structure
-
-Arachnid organizes all output by domain and content type:
-```
-output/
-└── example.com/
-    ├── example.com_base.txt        # Base URLs and findings
-    ├── example.com_javascript.txt  # JavaScript files
-    ├── example.com_linkfinder.txt  # URLs from JavaScript
-    ├── example.com_form.txt        # Discovered forms
-    ├── example.com_aws.txt         # AWS S3 buckets
-    └── example.com_subdomain.txt   # Discovered subdomains
-```
-
-## Configuration Options
-
-### Common Flags
-| Flag                | Description                            | Default |
-|---------------------|----------------------------------------|---------|
-| `-s, --site`       | Target site to crawl                   | -       |
-| `-o, --output`     | Output directory                       | -       |
-| `-c, --concurrent` | Concurrent requests per domain         | 5       |
-| `-d, --depth`      | Maximum crawl depth                    | 1       |
-| `-p, --proxy`      | Proxy URL                              | -       |
-| `-t, --threads`    | Number of parallel threads             | 1       |
-
-### Advanced Options
-| Flag                 | Description                                      |
-|----------------------|--------------------------------------------------|
-| `--js`              | Enable JavaScript analysis                       |
-| `--sitemap`         | Parse sitemap.xml                                |
-| `--robots`          | Parse robots.txt                                 |
-| `-a, --other-source`| Enable third-party source checking               |
-| `--blacklist`       | URL blacklist regex                              |
-| `--whitelist`       | URL whitelist regex                              |
-| `--json`            | Enable JSON output                               |
-
-## Security Features
-
-- TLS certificate verification
-- Rate limiting
-- Proxy support
-- Custom User-Agent rotation
-- Cookie and session management
-- Domain whitelisting/blacklisting
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
-
-## License
-
-This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-Arachnid is a fork and significant enhancement of the original GoSpider project. We've added new features, improved the architecture, and enhanced output organization while retaining the core functionality that made the original project great.
-```
-
-This README.md file follows the provided reference structure while integrating the enhanced description and feature set tailored for proDG Organisation.
+	fmt.Println("All datasets processed!")
+}

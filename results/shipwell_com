@@ -1,0 +1,64 @@
+[robots] - https://shipwell.com/*.js
+[robots] - https://shipwell.com/*.css
+[url] - [code-200] - https://www.shipwell.com/
+[href] - https://cdn.prod.website-files.com/65773018508c0c05433d46c6/css/shipwell-dev.7cc5fe132.min.css
+[href] - https://fonts.googleapis.com
+[href] - https://fonts.gstatic.com
+[href] - https://cdn.prod.website-files.com/65773018508c0c05433d46c6/65e8a62623f92fede93cdc8a_shipwell-favicon.svg
+[href] - https://cdn.prod.website-files.com/65773018508c0c05433d46c6/65e5e8a76dcedd26f695d518_webclip-shipwell.png
+[href] - https://www.shipwell.com/
+[href] - https://www.shipwell.com/gartner-mq-report
+[href] - https://www.shipwell.com/tms-platform
+[href] - https://www.shipwell.com/solutions/load-optimization
+[href] - https://www.shipwell.com/solutions/settlements
+[href] - https://www.shipwell.com/solutions/pricing-intelligence
+[href] - https://www.shipwell.com/solutions/dock-scheduling
+[href] - https://www.shipwell.com/solutions/visibility
+[href] - https://www.shipwell.com/solutions/rfp-automation
+[href] - https://www.shipwell.com/solutions/swifty-ai-assistant
+[href] - https://www.shipwell.com/solutions/solutions-advanced-data-reporting
+[href] - https://www.shipwell.com/solutions/solution-all-modes-tms
+[href] - https://www.shipwell.com/solutions-overview
+[href] - https://www.shipwell.com/industries/food-and-beverage
+[href] - https://www.shipwell.com/resources
+[href] - https://www.shipwell.com/resources?tags=Blog
+[href] - https://www.shipwell.com/resources-case-studies
+[href] - https://www.shipwell.com/roi-calculator
+[href] - https://www.shipwell.com/partners/partner-marketplace
+[href] - https://www.shipwell.com/about/culture
+[href] - https://www.shipwell.com/about/leadership
+[href] - https://www.shipwell.com/about/press
+[href] - https://www.shipwell.com/about/careers
+[href] - https://www.shipwell.com/referrals
+[href] - https://www.shipwell.com/faq
+[href] - https://shipwell.com/
+[href] - https://app.shipwell.com/
+[href] - https://www.shipwell.com/contact/request-a-tms-demo
+[href] - https://www.shipwell.com/privacy-policy
+[href] - https://www.shipwell.com/solutions/visibility/iot-provider-integration
+[href] - https://www.shipwell.com/blog/transportation-innovation-for-the-food-and-beverage-supply-chain
+[href] - https://www.shipwell.com/blog/ocean-container-visibility
+[href] - https://www.shipwell.com/blog/supplier-portal-datasheet-inbound-freight-management
+[href] - https://www.shipwell.com/contact/contact-us
+[href] - https://www.linkedin.com/company/shipwell/
+[href] - https://www.facebook.com/Shipwellinc/
+[href] - https://twitter.com/shipwell
+[form] - https://www.shipwell.com/
+[javascript] - https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js
+[javascript] - https://cdn.jsdelivr.net/npm/@finsweet/cookie-consent@1/fs-cc.js
+[javascript] - https://j.6sc.co/j/7c5e8d5b-b090-463b-8372-9bfe97ea4899.js
+[javascript] - https://js.hs-analytics.net/analytics/1711383000000/23160096.js
+[javascript] - https://js.hs-scripts.com/23160096.js
+[javascript] - https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=65773018508c0c05433d46c6
+[javascript] - https://cdn.prod.website-files.com/65773018508c0c05433d46c6/js/shipwell-dev.schunk.b7cad701f94860c2.js
+[javascript] - https://cdn.prod.website-files.com/65773018508c0c05433d46c6/js/shipwell-dev.schunk.c956e522e08740bc.js
+[javascript] - https://cdn.prod.website-files.com/65773018508c0c05433d46c6/js/shipwell-dev.769f223b.e53ffcf798ff3acc.js
+[url] - [code-200] - https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js
+[url] - [code-200] - https://cdn.prod.website-files.com/65773018508c0c05433d46c6/js/shipwell-dev.769f223b.e53ffcf798ff3acc.js
+[url] - [code-200] - https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=65773018508c0c05433d46c6
+[url] - [code-200] - https://cdn.jsdelivr.net/npm/@finsweet/cookie-consent@1/fs-cc.js
+[url] - [code-200] - https://cdn.prod.website-files.com/65773018508c0c05433d46c6/js/shipwell-dev.schunk.c956e522e08740bc.js
+[url] - [code-200] - https://cdn.prod.website-files.com/65773018508c0c05433d46c6/js/shipwell-dev.schunk.b7cad701f94860c2.js
+[url] - [code-200] - https://js.hs-scripts.com/23160096.js
+[url] - [code-200] - https://js.hs-analytics.net/analytics/1711383000000/23160096.js
+[url] - [code-200] - https://j.6sc.co/j/7c5e8d5b-b090-463b-8372-9bfe97ea4899.js
