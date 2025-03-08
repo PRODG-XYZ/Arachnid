@@ -12,6 +12,8 @@ Arachnid is a comprehensive web reconnaissance suite that combines three powerfu
 - **PDF Discovery**: Specialized module for finding and analyzing PDF documents
 - **Content Extraction**: Smart content processing and data organization
 
+This fork is designed for proDG Organisation to serve as a solid foundation for further enhancements and integration with our security suite. It delivers fast, concurrent crawling and robust data extraction features for streamlined vulnerability research and recon workflows.
+
 ## Features
 
 ### Core Features
@@ -115,34 +117,34 @@ output/
 └── example.com/
     ├── example.com_base.txt        # Base URLs and findings
     ├── example.com_javascript.txt  # JavaScript files
-    ├── example.com_linkfinder.txt # URLs from JavaScript
-    ├── example.com_form.txt       # Discovered forms
-    ├── example.com_aws.txt        # AWS S3 buckets
-    └── example.com_subdomain.txt  # Discovered subdomains
+    ├── example.com_linkfinder.txt  # URLs from JavaScript
+    ├── example.com_form.txt        # Discovered forms
+    ├── example.com_aws.txt         # AWS S3 buckets
+    └── example.com_subdomain.txt   # Discovered subdomains
 ```
 
 ## Configuration Options
 
 ### Common Flags
-| Flag | Description | Default |
-|------|-------------|---------|
-| -s, --site | Target site to crawl | - |
-| -o, --output | Output directory | - |
-| -c, --concurrent | Concurrent requests per domain | 5 |
-| -d, --depth | Maximum crawl depth | 1 |
-| -p, --proxy | Proxy URL | - |
-| -t, --threads | Number of parallel threads | 1 |
+| Flag                | Description                            | Default |
+|---------------------|----------------------------------------|---------|
+| `-s, --site`       | Target site to crawl                   | -       |
+| `-o, --output`     | Output directory                       | -       |
+| `-c, --concurrent` | Concurrent requests per domain         | 5       |
+| `-d, --depth`      | Maximum crawl depth                    | 1       |
+| `-p, --proxy`      | Proxy URL                              | -       |
+| `-t, --threads`    | Number of parallel threads             | 1       |
 
 ### Advanced Options
-| Flag | Description |
-|------|-------------|
-| --js | Enable JavaScript analysis |
-| --sitemap | Parse sitemap.xml |
-| --robots | Parse robots.txt |
-| -a, --other-source | Enable third-party source checking |
-| --blacklist | URL blacklist regex |
-| --whitelist | URL whitelist regex |
-| --json | Enable JSON output |
+| Flag                 | Description                                      |
+|----------------------|--------------------------------------------------|
+| `--js`              | Enable JavaScript analysis                       |
+| `--sitemap`         | Parse sitemap.xml                                |
+| `--robots`          | Parse robots.txt                                 |
+| `-a, --other-source`| Enable third-party source checking               |
+| `--blacklist`       | URL blacklist regex                              |
+| `--whitelist`       | URL whitelist regex                              |
+| `--json`            | Enable JSON output                               |
 
 ## Security Features
 
@@ -159,8 +161,11 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
-This project is a fork and significant enhancement of the original GoSpider project. We've added new features, improved the architecture, and enhanced the output organization while maintaining the core functionality that made the original project great.
+Arachnid is a fork and significant enhancement of the original GoSpider project. We've added new features, improved the architecture, and enhanced output organization while retaining the core functionality that made the original project great.
+```
+
+This README.md file follows the provided reference structure while integrating the enhanced description and feature set tailored for proDG Organisation.
