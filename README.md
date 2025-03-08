@@ -48,7 +48,7 @@ This fork is designed for proDG Organisation to serve as a solid foundation for 
 ### From Source
 ```bash
 # Clone the repository
-git clone https://github.com/CypherSecXYZ/Arachnid.git
+git clone https://github.com/PRODG-XYZ/Arachnid.git
 cd Arachnid
 
 # Build all tools
