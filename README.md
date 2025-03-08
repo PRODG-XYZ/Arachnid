@@ -1,169 +1,166 @@
-# GoSpider
-
-**GoSpider** - Fast web spider written in Go
-
-## Painless integrate Gospider into your recon workflow?
+# Arachnid
 
 <p align="center">
-  <img alt="OsmedeusEngine" src="https://raw.githubusercontent.com/osmedeus/assets/main/logo-transparent.png" height="200" />
-  <p align="center">
-    this project was part of Osmedeus Engine. Check out how it was integrated at <a href="https://twitter.com/OsmedeusEngine">@OsmedeusEngine</a>
-  </p>
+  <h3 align="center">Arachnid</h3>
+  <p align="center">A powerful and modular web reconnaissance suite written in Go</p>
 </p>
 
+## Overview
 
-## Installation
-
-### GO install
-```
-GO111MODULE=on go install github.com/jaeles-project/gospider@latest
-```
-
-### Docker
-
-```bash
-# Clone the repo
-git clone https://github.com/jaeles-project/gospider.git
-# Build the contianer
-docker build -t gospider:latest gospider
-# Run the container
-docker run -t gospider -h
-```
+Arachnid is a comprehensive web reconnaissance suite that combines three powerful tools:
+- **Web Crawler**: Advanced web crawling with intelligent content discovery
+- **PDF Discovery**: Specialized module for finding and analyzing PDF documents
+- **Content Extraction**: Smart content processing and data organization
 
 ## Features
 
-* Fast web crawling
-* Brute force and parse sitemap.xml
-* Parse robots.txt
-* Generate and verify link from JavaScript files
-* Link Finder
-* Find AWS-S3 from response source
-* Find subdomains from response source
-* Get URLs from Wayback Machine, Common Crawl, Virus Total, Alien Vault
-* Format output easy to Grep
-* Support Burp input
-* Crawl multiple sites in parallel
-* Random mobile/web User-Agent
+### Core Features
+* Fast and concurrent web crawling
+* Intelligent content discovery and organization
+* Automatic file categorization
+* Domain-based output structuring
+* PDF document discovery and analysis
+* AWS S3 bucket detection
+* Subdomain enumeration
+* JavaScript analysis and URL extraction
+* Historical data collection (Archive.org, CommonCrawl, VirusTotal)
+* Proxy support with TOR integration
+* Custom header and cookie management
 
-## Showcases
+### Advanced Capabilities
+* Sitemap and robots.txt parsing
+* Form detection and analysis
+* File upload endpoint discovery
+* Customizable crawl depth and scope
+* Rate limiting and delay controls
+* Flexible output formats (plain text, JSON)
+* Domain-specific filtering
+* Length-based response filtering
 
-[![asciicast](https://asciinema.org/a/301827.svg)](https://asciinema.org/a/301827)
+## Installation
+
+### Prerequisites
+- Go 1.16 or higher
+- Git
+
+### From Source
+```bash
+# Clone the repository
+git clone https://github.com/CypherSecXYZ/Arachnid.git
+cd Arachnid
+
+# Build all tools
+./build.sh
+
+# Optional: Move binaries to PATH
+sudo mv bin/* /usr/local/bin/
+```
+
+### Using Go Install
+```bash
+GO111MODULE=on go install github.com/CypherSecXYZ/Arachnid/cmd/arachnid@latest
+GO111MODULE=on go install github.com/CypherSecXYZ/Arachnid/cmd/cogni@latest
+GO111MODULE=on go install github.com/CypherSecXYZ/Arachnid/cmd/pdf-bandit@latest
+```
+
+### Docker
+```bash
+# Build the container
+docker build -t arachnid:latest .
+
+# Run the container
+docker run -t arachnid -h
+```
 
 ## Usage
 
-```shell
-Fast web spider written in Go - v1.1.5 by @thebl4ckturtle & @j3ssiejjj
+### Web Crawler (arachnid)
+```bash
+# Basic crawl
+arachnid -s "https://example.com" -o output -c 10 -d 1
 
-Usage:
-  gospider [flags]
+# Crawl with all features enabled
+arachnid -s "https://example.com" -o output -c 10 -d 1 --js --sitemap --robots -a
 
-Flags:
-  -s, --site string               Site to crawl
-  -S, --sites string              Site list to crawl
-  -p, --proxy string              Proxy (Ex: http://127.0.0.1:8080)
-  -o, --output string             Output folder
-  -u, --user-agent string         User Agent to use
-                                  	web: random web user-agent
-                                  	mobi: random mobile user-agent
-                                  	or you can set your special user-agent (default "web")
-      --cookie string             Cookie to use (testA=a; testB=b)
-  -H, --header stringArray        Header to use (Use multiple flag to set multiple header)
-      --burp string               Load headers and cookie from burp raw http request
-      --blacklist string          Blacklist URL Regex
-      --whitelist string          Whitelist URL Regex
-      --whitelist-domain string   Whitelist Domain
-  -t, --threads int               Number of threads (Run sites in parallel) (default 1)
-  -c, --concurrent int            The number of the maximum allowed concurrent requests of the matching domains (default 5)
-  -d, --depth int                 MaxDepth limits the recursion depth of visited URLs. (Set it to 0 for infinite recursion) (default 1)
-  -k, --delay int                 Delay is the duration to wait before creating a new request to the matching domains (second)
-  -K, --random-delay int          RandomDelay is the extra randomized duration to wait added to Delay before creating a new request (second)
-  -m, --timeout int               Request timeout (second) (default 10)
-  -B, --base                      Disable all and only use HTML content
-      --js                        Enable linkfinder in javascript file (default true)
-      --subs                      Include subdomains
-      --sitemap                   Try to crawl sitemap.xml
-      --robots                    Try to crawl robots.txt (default true)
-  -a, --other-source              Find URLs from 3rd party (Archive.org, CommonCrawl.org, VirusTotal.com, AlienVault.com)
-  -w, --include-subs              Include subdomains crawled from 3rd party. Default is main domain
-  -r, --include-other-source      Also include other-source's urls (still crawl and request)
-      --debug                     Turn on debug mode
-      --json                      Enable JSON output
-  -v, --verbose                   Turn on verbose
-  -l, --length                    Turn on length
-  -L, --filter-length             Turn on length filter
-  -R, --raw                       Turn on raw
-  -q, --quiet                     Suppress all the output and only show URL
-      --no-redirect               Disable redirect
-      --version                   Check version
-  -h, --help                      help for gospider
+# Crawl multiple sites
+arachnid -S sites.txt -o output -c 10 -d 1 -t 20
 
+# Use with TOR proxy
+arachnid -s "https://example.com" -p "socks5://127.0.0.1:9050" -o output
 ```
 
-## Example commands
-
-### Quite output
-
-```
-gospider -q -s "https://google.com/"
-```
-
-#### Run with single site
-
-```
-gospider -s "https://google.com/" -o output -c 10 -d 1
+### PDF Discovery (cogni)
+```bash
+cogni
+# Follow the interactive prompts to:
+# 1. Enter target URL
+# 2. Configure crawling options
+# 3. Start PDF discovery
 ```
 
-#### Run with site list
-
-```
-gospider -S sites.txt -o output -c 10 -d 1
-```
-
-#### Run with 20 sites at the same time with 10 bot each site
-
-```
-gospider -S sites.txt -o output -c 10 -d 1 -t 20
+### Content Extraction (pdf-bandit)
+```bash
+pdf-bandit
+# Follow the interactive prompts to:
+# 1. Select input dataset
+# 2. Choose extraction options
+# 3. Begin content processing
 ```
 
-#### Also get URLs from 3rd party (Archive.org, CommonCrawl.org, VirusTotal.com, AlienVault.com)
+## Output Structure
 
+Arachnid organizes all output by domain and content type:
 ```
-gospider -s "https://google.com/" -o output -c 10 -d 1 --other-source
-```
-
-#### Also get URLs from 3rd party (Archive.org, CommonCrawl.org, VirusTotal.com, AlienVault.com) and include subdomains
-
-```
-gospider -s "https://google.com/" -o output -c 10 -d 1 --other-source --include-subs
-```
-
-#### Use custom header/cookies
-
-```
-gospider -s "https://google.com/" -o output -c 10 -d 1 --other-source -H "Accept: */*" -H "Test: test" --cookie "testA=a; testB=b"
-
-gospider -s "https://google.com/" -o output -c 10 -d 1 --other-source --burp burp_req.txt
+output/
+└── example.com/
+    ├── example.com_base.txt        # Base URLs and findings
+    ├── example.com_javascript.txt  # JavaScript files
+    ├── example.com_linkfinder.txt # URLs from JavaScript
+    ├── example.com_form.txt       # Discovered forms
+    ├── example.com_aws.txt        # AWS S3 buckets
+    └── example.com_subdomain.txt  # Discovered subdomains
 ```
 
-#### Blacklist url/file extension.
+## Configuration Options
 
-**P/s**: gospider blacklisted `.(jpg|jpeg|gif|css|tif|tiff|png|ttf|woff|woff2|ico)` as default
+### Common Flags
+| Flag | Description | Default |
+|------|-------------|---------|
+| -s, --site | Target site to crawl | - |
+| -o, --output | Output directory | - |
+| -c, --concurrent | Concurrent requests per domain | 5 |
+| -d, --depth | Maximum crawl depth | 1 |
+| -p, --proxy | Proxy URL | - |
+| -t, --threads | Number of parallel threads | 1 |
 
-```
-gospider -s "https://google.com/" -o output -c 10 -d 1 --blacklist ".(woff|pdf)"
-```
+### Advanced Options
+| Flag | Description |
+|------|-------------|
+| --js | Enable JavaScript analysis |
+| --sitemap | Parse sitemap.xml |
+| --robots | Parse robots.txt |
+| -a, --other-source | Enable third-party source checking |
+| --blacklist | URL blacklist regex |
+| --whitelist | URL whitelist regex |
+| --json | Enable JSON output |
 
-#### Show and Blacklist file length.
+## Security Features
 
-```
-gospider -s "https://google.com/" -o output -c 10 -d 1 --length --filter-length "6871,24432"   
-```
+- TLS certificate verification
+- Rate limiting
+- Proxy support
+- Custom User-Agent rotation
+- Cookie and session management
+- Domain whitelisting/blacklisting
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
 
-`Gospider` is made with ♥ by [@j3ssiejjj](https://twitter.com/j3ssiejjj)
-& [@thebl4ckturtle](https://twitter.com/thebl4ckturtle) and it is released under the MIT license.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Donation
+## Acknowledgments
 
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/j3ssiejjj)
+This project is a fork and significant enhancement of the original GoSpider project. We've added new features, improved the architecture, and enhanced the output organization while maintaining the core functionality that made the original project great.
