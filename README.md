@@ -103,6 +103,7 @@ This fork is designed for proDG Organisation to serve as a solid foundation for 
 ### Prerequisites
 - Go 1.16 or higher
 - Git
+- Sudo privileges (for installation)
 
 ### From Source
 ```bash
@@ -110,12 +111,34 @@ This fork is designed for proDG Organisation to serve as a solid foundation for 
 git clone https://github.com/PRODG-XYZ/Arachnid.git
 cd Arachnid
 
-# Build all tools
+# Option 1: Quick Install
+# Build and install all tools (requires sudo)
+sudo ./update.sh
+
+# Option 2: Manual Build
+# Build without installing
 ./build.sh
 
-# Optional: Move binaries to PATH
+# Optional: Move binaries to PATH manually
 sudo mv bin/* /usr/local/bin/
 ```
+
+### Updating
+To update the tools to the latest version:
+```bash
+# Pull the latest changes
+git pull
+
+# Build and install the updated version (requires sudo)
+sudo ./update.sh
+```
+
+The update script will:
+- Update all dependencies
+- Build the latest version of all tools
+- Install them to /usr/local/bin/
+- Verify the installation
+- Display the installed versions
 
 ### Using Go Install
 ```bash
