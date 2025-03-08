@@ -60,9 +60,9 @@ sudo mv bin/* /usr/local/bin/
 
 ### Using Go Install
 ```bash
-GO111MODULE=on go install github.com/CypherSecXYZ/Arachnid/cmd/arachnid@latest
-GO111MODULE=on go install github.com/CypherSecXYZ/Arachnid/cmd/cogni@latest
-GO111MODULE=on go install github.com/CypherSecXYZ/Arachnid/cmd/pdf-bandit@latest
+GO111MODULE=on go install github.com/PRODG-XYZ/Arachnid/cmd/arachnid@latest
+GO111MODULE=on go install github.com/PRODG-XYZ/Arachnid/cmd/cogni@latest
+GO111MODULE=on go install github.com/PRODG-XYZ/Arachnid/cmd/pdf-bandit@latest
 ```
 
 ### Docker
