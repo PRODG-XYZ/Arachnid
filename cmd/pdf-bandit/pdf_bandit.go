@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -116,6 +117,89 @@ func downloadPDFs(links []string, downloadFolder string) error {
 	return nil
 }
 
+// Function to check if a file is an Arachnid result file
+func isArachnidResultFile(filename string) bool {
+	// Arachnid results typically end with _base.txt, _javascript.txt, _linkfinder.txt, etc.
+	patterns := []string{"_base.txt", "_javascript.txt", "_linkfinder.txt", "_form.txt", "_aws.txt", "_subdomain.txt"}
+	for _, pattern := range patterns {
+		if strings.HasSuffix(filename, pattern) {
+			return true
+		}
+	}
+	return false
+}
+
+// Function to convert Arachnid results to PDF dataset format
+func convertArachnidResults(inputFile string) (string, error) {
+	// Read the input file
+	content, err := os.ReadFile(inputFile)
+	if err != nil {
+		return "", fmt.Errorf("failed to read input file: %v", err)
+	}
+
+	// Create a temporary output file
+	outputFile := strings.TrimSuffix(inputFile, filepath.Ext(inputFile)) + "_pdf_urls.txt"
+
+	// Create a set to store unique PDF URLs
+	pdfURLs := make(map[string]bool)
+
+	// Process each line
+	scanner := bufio.NewScanner(strings.NewReader(string(content)))
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// Try to extract URL from different Arachnid output formats
+		var url string
+
+		// Handle JSON format
+		if strings.HasPrefix(line, "{") {
+			var result struct {
+				Output string `json:"output"`
+			}
+			if err := json.Unmarshal([]byte(line), &result); err == nil {
+				url = result.Output
+			}
+		} else {
+			// Handle plain text format
+			// Look for URLs in brackets or at the end of lines
+			if idx := strings.LastIndex(line, " - "); idx != -1 {
+				url = strings.TrimSpace(line[idx+3:])
+			} else {
+				url = strings.TrimSpace(line)
+			}
+		}
+
+		// Check if the URL ends with .pdf
+		if strings.HasSuffix(strings.ToLower(url), ".pdf") {
+			pdfURLs[url] = true
+		}
+	}
+
+	// Write unique PDF URLs to the output file
+	outFile, err := os.Create(outputFile)
+	if err != nil {
+		return "", fmt.Errorf("failed to create output file: %v", err)
+	}
+	defer outFile.Close()
+
+	for url := range pdfURLs {
+		if _, err := outFile.WriteString(url + "\n"); err != nil {
+			return "", fmt.Errorf("failed to write to output file: %v", err)
+		}
+	}
+
+	return outputFile, nil
+}
+
+// Function to preprocess dataset files
+func preprocessDataset(filename string) (string, error) {
+	if isArachnidResultFile(filename) {
+		fmt.Printf("Converting Arachnid result file: %s\n", filename)
+		return convertArachnidResults(filename)
+	}
+	return filename, nil
+}
+
 // Function to process a single dataset
 func processDataset(datasetFile string) error {
 	// Extract PDF links from the dataset file
@@ -223,24 +307,102 @@ func savePDFLinks(links []string, outputFile string) error {
 	return nil
 }
 
-func main() {
-	printASCIIArt()
+func printHelp() {
+	helpText := `
+PDF Bandit - Advanced PDF Discovery and Extraction Tool
 
+Usage:
+  pdf-bandit [flags]
+
+Flags:
+  -f, --file string       Process a single dataset file (supports both Arachnid results and plain URL lists)
+  -l, --list string       Path to a text file containing multiple dataset files to process
+  -c, --concurrent        Enable concurrent processing (up to 3 datasets simultaneously)
+  -h, --help             Display this help message
+
+Examples:
+  # Process a single dataset file:
+  pdf-bandit -f dataset.txt
+
+  # Process an Arachnid result file:
+  pdf-bandit -f example.com_linkfinder.txt
+
+  # Process multiple Arachnid results from a list:
+  pdf-bandit -l arachnid_results.txt
+
+  # Process multiple datasets concurrently:
+  pdf-bandit -l datasets_list.txt -c
+
+Input File Formats:
+  1. Arachnid Result Files:
+     - Automatically detected by file patterns (_base.txt, _javascript.txt, _linkfinder.txt, etc.)
+     - Supports both JSON and plain text output formats
+     - Automatically extracts and processes PDF URLs
+
+  2. Plain Text URL Lists:
+     - One URL per line
+     - URLs must end with .pdf extension
+     - Both HTTP and HTTPS URLs are supported
+
+Output Structure:
+  output/
+  └── dataset_name/
+      ├── pdf_links.txt     # List of extracted PDF URLs
+      └── *.pdf            # Downloaded PDF files
+
+Features:
+  - Automatic detection and processing of Arachnid result files
+  - Concurrent PDF downloads (up to 5 simultaneous downloads)
+  - Automatic directory organization
+  - Progress tracking and error reporting
+  - URL extraction and validation
+  - Batch processing capabilities
+  - Deduplication of PDF URLs
+  - Support for both JSON and plain text formats
+
+Note: The tool will create an 'output' directory in the current working directory
+      if it doesn't exist. Each dataset will have its own subdirectory.
+`
+	fmt.Println(helpText)
+}
+
+func main() {
 	// Define command line flags
 	listFile := flag.String("l", "", "Path to a text file containing a list of dataset files")
 	datasetFile := flag.String("f", "", "Single dataset file to process")
 	concurrent := flag.Bool("c", false, "Process datasets concurrently")
+	help := flag.Bool("h", false, "Display help information")
+
+	// Add aliases for flags
+	flag.StringVar(listFile, "list", "", "Path to a text file containing a list of dataset files")
+	flag.StringVar(datasetFile, "file", "", "Single dataset file to process")
+	flag.BoolVar(concurrent, "concurrent", false, "Process datasets concurrently")
+	flag.BoolVar(help, "help", false, "Display help information")
+
 	flag.Parse()
+
+	// Check if help flag is set
+	if *help {
+		printHelp()
+		return
+	}
+
+	printASCIIArt()
 
 	if *listFile == "" && *datasetFile == "" {
 		fmt.Println("Please provide either a list file (-l) or a single dataset file (-f)")
+		fmt.Println("Use -h or --help for detailed usage information")
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
 
 	// Process a single dataset file
 	if *datasetFile != "" {
-		if err := processDataset(*datasetFile); err != nil {
+		processedFile, err := preprocessDataset(*datasetFile)
+		if err != nil {
+			log.Fatalf("Error preprocessing dataset: %v", err)
+		}
+		if err := processDataset(processedFile); err != nil {
 			log.Fatalf("Error processing dataset: %v", err)
 		}
 		return
@@ -256,7 +418,13 @@ func main() {
 	var datasets []string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		datasets = append(datasets, strings.TrimSpace(scanner.Text()))
+		filename := strings.TrimSpace(scanner.Text())
+		processedFile, err := preprocessDataset(filename)
+		if err != nil {
+			fmt.Printf("Error preprocessing dataset %s: %v\n", filename, err)
+			continue
+		}
+		datasets = append(datasets, processedFile)
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -264,7 +432,7 @@ func main() {
 	}
 
 	if len(datasets) == 0 {
-		log.Fatal("No datasets found in the list file")
+		log.Fatal("No valid datasets found in the list file")
 	}
 
 	// Process datasets either concurrently or sequentially

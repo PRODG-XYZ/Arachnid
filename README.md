@@ -164,8 +164,11 @@ cogni
 # Process a single dataset file
 pdf-bandit -f dataset.txt
 
-# Process multiple datasets from a list file
-pdf-bandit -l datasets_list.txt
+# Process an Arachnid result file directly
+pdf-bandit -f example.com_linkfinder.txt
+
+# Process multiple Arachnid results from a list
+pdf-bandit -l arachnid_results.txt
 
 # Process multiple datasets concurrently
 pdf-bandit -l datasets_list.txt -c
@@ -174,9 +177,21 @@ pdf-bandit -l datasets_list.txt -c
 PDF Bandit supports the following flags:
 | Flag | Description |
 |------|-------------|
-| `-f` | Process a single dataset file |
-| `-l` | Path to a text file containing a list of dataset files |
-| `-c` | Enable concurrent processing (up to 3 datasets simultaneously) |
+| `-f, --file` | Process a single dataset file (supports both Arachnid results and plain URL lists) |
+| `-l, --list` | Path to a text file containing a list of dataset files to process |
+| `-c, --concurrent` | Enable concurrent processing (up to 3 datasets simultaneously) |
+| `-h, --help` | Display help information |
+
+Input File Formats:
+1. **Arachnid Result Files**:
+   - Automatically detected by file patterns (_base.txt, _javascript.txt, _linkfinder.txt, etc.)
+   - Supports both JSON and plain text output formats
+   - Automatically extracts and processes PDF URLs
+
+2. **Plain Text URL Lists**:
+   - One URL per line
+   - URLs must end with .pdf extension
+   - Both HTTP and HTTPS URLs are supported
 
 The tool organizes output in the following structure:
 ```
@@ -187,11 +202,14 @@ output/
 ```
 
 Features:
+- Automatic detection and processing of Arachnid result files
 - Concurrent PDF downloads (up to 5 simultaneous downloads)
 - Automatic directory organization
 - Progress tracking and error reporting
 - URL extraction and validation
 - Batch processing capabilities
+- Deduplication of PDF URLs
+- Support for both JSON and plain text formats
 
 ## Output Structure
 
